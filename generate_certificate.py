@@ -8,7 +8,11 @@ def name_replace(current_name, new_name):
         name_coordinates = page.search_for(current_name)
         name_rect = name_coordinates[0]
         page.draw_rect(name_rect, color=(1,1,1), fill=(1,1,1), width=1)
-        page.insert_textbox(name_rect + (-90, 0, 90, 90), new_name, fontsize=27, fontname='helvetica-bold', color=(0,0,0), align=1)
+        #for longer names, the addition on the textbox need to be bigger
+        if len(new_name) > 20:
+            page.insert_textbox(name_rect + (-90, -50, 90, 50), new_name, fontsize=27, fontname='helvetica-bold', color=(0,0,0), align=1)
+        else:
+            page.insert_textbox(name_rect + (-90, 0, 90, 90), new_name, fontsize=27, fontname='helvetica-bold', color=(0,0,0), align=1)
 
 def date_replace(current_date, new_date):
     current_date_coords = page.search_for(current_date)
@@ -36,10 +40,6 @@ with open(Path(r"C:\Users\RonJavellana\Downloads\campaign_report_All Staff SAT 2
         images = page.get_images(full=True)
 
         full_name = row['Name'].strip()
-
-        if len(full_name) > 20:
-            print(f"{full_name} has to be generated separately")
-            continue
 
         name_replace("Anita Bath", full_name)
         date_replace("12 May, 2025", "15 Feb, 2025")
