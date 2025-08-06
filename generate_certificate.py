@@ -1,5 +1,6 @@
 from pathlib import Path
 import fitz
+import csv
 
 # for the training title, it's almost impossible to replace CLEANLY. Ensure to use an original certificate with the proper training video name.
 
@@ -23,18 +24,23 @@ def replace_icon(replacement):
     except IndexError:
         print("No image was found")
 
-try:
-    cert = fitz.open(Path(r"C:\Users\RonJavellana\Downloads\PDF_Files\certificate.pdf"))
-except FileNotFoundError:
-    print('No training certifificate was found')
+# detect names from campaign participants CSV and pass to name_replace
+with open(Path(r"C:\Users\RonJavellana\Downloads\campaign_report_All Staff SAT 2025.csv"), mode='r', newline='') as csvfile:
+    reader = csv.DictReader(csvfile)
 
-page = cert[0]
+    for row in reader:
+        cert = fitz.open(Path(r"C:\Users\RonJavellana\Downloads\PDF_Files\certificate.pdf"))
 
-name_replace("Anita Bath", "John Doe")
-date_replace("12 May, 2025", "15 Feb, 2025")
+        page = cert[0]
+        
+        images = page.get_images(full=True)
 
-images = page.get_images(full=True)
-replace_icon(Path(r"C:\Users\RonJavellana\Downloads\test.png"))
+        full_name = row['Name'].strip()
+        name_replace("Anita Bath", full_name)
+        date_replace("12 May, 2025", "15 Feb, 2025")
+        replace_icon(Path(r"C:\Users\RonJavellana\Downloads\test.png"))
+        safe_name = full_name.replace(" ", "_")
+        cert.save(Path(fr"C:\Users\RonJavellana\Downloads\PDF_Files\GeneratedCerts\{safe_name}.pdf"))
+        cert.close()
 
-cert.save(Path(r"C:\Users\RonJavellana\Downloads\PDF_Files\GeneratedCerts\new.pdf"))
 print("Training Certificate(s) generated")
