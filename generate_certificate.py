@@ -28,12 +28,28 @@ def replace_icon(replacement):
     except IndexError:
         print("No image was found")
 
-# detect names from campaign participants CSV and pass to name_replace
-with open(Path(r"C:\Users\RonJavellana\Downloads\campaign_report_All Staff SAT 2025.csv"), mode='r', newline='') as csvfile:
+training_participants_csv = input("Please paste in the path of the Training Participants CSV: ").strip("\"").strip()
+training_participants_csv = Path(fr"{training_participants_csv}")
+
+base_certificate = input("Paste the path to the base certificate: ").strip("\"").strip()
+base_certificate = Path(fr"{base_certificate}")
+
+replacement_icon = input("Paste the path to the new icon: ").strip("\"").strip()
+replacement_icon = Path(fr"{replacement_icon}")
+
+date_to_remove = input("Input the exact training completion date from the base cert to be replaced. Example: 15 Feb, 2024 - this is usually the format: ").strip("\"").strip()
+new_training_completion_date = input("Input the new completion date. Note this will be applied to all generated certs. Format \"15 Feb, 2024\": ").strip("\"").strip()
+
+print("Creating folder for new certs")
+p = Path.home() / "Downloads" / "GeneratedCerts"
+p.mkdir(parents=True, exist_ok=True)
+print(f"Destination folder created successfully: {p}")
+
+with open(training_participants_csv, mode='r', newline='') as csvfile:
     reader = csv.DictReader(csvfile)
 
     for row in reader:
-        cert = fitz.open(Path(r"C:\Users\RonJavellana\Downloads\PDF_Files\certificate.pdf"))
+        cert = fitz.open(base_certificate)
 
         page = cert[0]
         
@@ -42,10 +58,10 @@ with open(Path(r"C:\Users\RonJavellana\Downloads\campaign_report_All Staff SAT 2
         full_name = row['Name'].strip()
 
         name_replace("Anita Bath", full_name)
-        date_replace("12 May, 2025", "15 Feb, 2025")
-        replace_icon(Path(r"C:\Users\RonJavellana\Downloads\test.png"))
+        date_replace(date_to_remove, new_training_completion_date)
+        replace_icon(replacement_icon)
         safe_name = full_name.replace(" ", "_")
-        cert.save(Path(fr"C:\Users\RonJavellana\Downloads\PDF_Files\GeneratedCerts\{safe_name}.pdf"))
+        cert.save(Path(fr"{p}\{safe_name}.pdf"))
         cert.close()
 
 print("Training Certificate(s) generated")
